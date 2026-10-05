@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./imagem/iconprocopio.png" type="image/x-icon">
+    <title>Gerador de Assinaturas - Multi Empresas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #353434; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 30px; 
+            margin: 0;
+        }
+        
+        .form-container { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            margin-bottom: 30px; 
+            width: 450px; 
+        }
+
+        .input-group { 
+            margin-bottom: 12px; 
+        }
+
+        label { 
+            display: block; 
+            font-size: 11px; 
+            font-weight: bold; 
+            color: #1a4a8e; 
+            margin-bottom: 4px; 
+        }
+
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 14px;
+        }
+
+        h3 {
+            text-align: center; 
+            color: #1a4a8e; 
+            margin-top: 0;
+        }
+
+        .company-badge {
+            background-color: #00AEEF;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .btn-download {
+            background-color: #00AEEF;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .btn-download:hover {
+            background-color: #0095c9;
+        }
+
+        .signature-stage {
+            width: 1000px;
+            height: 336px;
+            background-image: url('imagem/AssProcopio.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: left center;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .field {
+            position: absolute;
+            z-index: 2;
+            background: transparent;
+            white-space: nowrap;
+        }
+
+        #outNome { 
+            top: 30px; 
+            left: 360px; 
+            font-size: 36px; 
+            font-weight: 700; 
+            color: #707172; 
+            text-transform: uppercase; 
+        }
+
+        #outSetor { 
+            top: 75px; 
+            left: 360px; 
+            font-size: 25px; 
+            font-weight: 500; 
+            color: #989899; 
+            text-transform: uppercase; 
+            letter-spacing: 6px; 
+        }
+
+        #outTel { 
+            top: 130px; 
+            left: 400px; 
+            font-size: 25px; 
+            font-weight: 500; 
+            color: #1a4a8e; 
+        }
+
+        #outEmail { 
+            top: 175px; 
+            left: 403px; 
+            font-size: 24px; 
+            font-weight: 500; 
+            color: #1a4a8e; 
+        }
+
+        /* MENU LATERAL */
+        .companies-tab {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #00AEEF;
+            color: white;
+            padding: 15px 10px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            z-index: 999;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+        }
+
+        .companies-tab:hover {
+            background-color: #0095c9;
+        }
+
+        .companies-menu {
+            position: fixed;
+            left: -280px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: 2px solid #00AEEF;
+            border-radius: 8px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: left 0.3s ease;
+        }
+
+        .companies-menu.active {
+            left: 60px;
+        }
+
+        .companies-menu h4 {
+            color: #1a4a8e;
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #00AEEF;
+            padding-bottom: 10px;
+        }
+
+        .company-option {
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #1a4a8e;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .company-option:hover {
+            background-color: #f0f0f0;
+            border-color: #00AEEF;
+        }
+
+        .company-option.active {
+            background-color: #00AEEF;
+            color: white;
+            border-color: #00AEEF;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 995;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .phone-hint {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="companies-tab" onclick="toggleMenu()">☷ EMPRESAS</div>
+
+    <div class="companies-menu" id="companiesMenu">
+        <h4>Selecione a Empresa</h4>
+        <div class="company-option active" onclick="selectCompany('procopio', event)">Procópio</div>
+        <div class="company-option" onclick="selectCompany('empresa2', event)">Procópio Alcabras</div>
+        <div class="company-option" onclick="selectCompany('empresa3', event)">Procópio Embalagens</div>
+        <div class="company-option" onclick="selectCompany('empresa4', event)">Grupo Procópio</div>
+    </div>
+
+    <div class="form-container">
+        <div class="company-badge" id="companyBadge">Procópio</div>
+        <h3>DADOS PARA A ASSINATURA</h3>
+        
+        <div class="input-group">
+            <label>NOME COMPLETO</label>
+            <input type="text" id="inNome" placeholder="Renato Soares" maxlength="30" oninput="update()">
+        </div>
+        <div class="input-group">
+            <label>SETOR</label>
+            <input type="text" id="inSetor" placeholder="TI" oninput="update()">
+        </div>
+        <div class="input-group">
+            <label>TELEFONE - RAMAL</label>
+            <input type="text" id="inTel" placeholder="1580" maxlength="4" oninput="formatPhone()">
+            <div class="phone-hint">Digite apenas os 4 dígitos do ramal</div>
+        </div>
+        <div class="input-group">
+            <label>E-MAIL</label>
+            <input type="text" id="inEmail" placeholder="renato.soares@procopio.com.br" oninput="update()">
+        </div>
+
+        <button class="btn-download" onclick="downloadSignature()">BAIXAR ASSINATURA</button>
+    </div>
+
+    <div id="signature-stage" class="signature-stage">
+        <div id="outNome" class="field">Renato Soares</div>
+        <div id="outSetor" class="field">TI</div>
+        <div id="outTel" class="field">+55 (41) 3391-1580</div>
+        <div id="outEmail" class="field">renato.soares@procopio.com.br</div>
+    </div>
+
+    <script>
+        const empresas = {
+            procopio: {
+                nome: 'Procópio',
+                imagem: 'imagem/AssProcopio.jpg',
+                email: '@procopio.com.br',
+                telefone: '+55 (41) 3391-1580'
+            },
+            empresa2: {
+                nome: 'Procópio Alcabras',
+                imagem: 'imagem/AssEmpresa2.jpg',
+                email: '@alcabras.com.br',
+                telefone: '+55 (41) 3391-1580'
+            },
+            empresa3: {
+                nome: 'Procópio Embalagens',
+                imagem: 'imagem/AssEmpresa3.jpg',
+                email: '@embalagens.com.br',
+                telefone: '+55 (41) 3391-1580'
+            },
+            empresa4: {
+                nome: 'Grupo Procópio',
+                imagem: 'imagem/AssGProcopio.png',
+                email: '@procopio.com.br',
+                telefone: '+55 (41) 3391-1580'
+            }
+        };
+
+        let empresaSelecionada = 'procopio';
+
+        function toggleMenu() {
+            document.getElementById('companiesMenu').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function selectCompany(empresa, event) {
+            empresaSelecionada = empresa;
+            const dados = empresas[empresa];
+
+            document.getElementById('companyBadge').textContent = dados.nome;
+            document.getElementById('signature-stage').style.backgroundImage = `url('${dados.imagem}')`;
+
+            document.getElementById('inNome').value = '';
+            document.getElementById('inSetor').value = '';
+            document.getElementById('inTel').value = '';
+            document.getElementById('inEmail').value = '';
+
+            document.getElementById('inTel').placeholder = '1580';
+            document.getElementById('inEmail').placeholder = 'usuario' + dados.email;
+
+            const options = document.querySelectorAll('.company-option');
+            options.forEach(opt => opt.classList.remove('active'));
+            event.target.classList.add('active');
+
+            toggleMenu();
+            update();
+        }
+
+        // Função para formatar o telefone automaticamente
+        function formatPhone() {
+            const ramal = document.getElementById('inTel').value;
+            // Remove caracteres não numéricos
+            const apenasNumeros = ramal.replace(/\D/g, '');
+            // Atualiza o input com apenas números
+            document.getElementById('inTel').value = apenasNumeros;
+            // Chama update para atualizar a assinatura
+            update();
+        }
+
+        function update() {
+            const nome = document.getElementById('inNome').value.toUpperCase() || 'RENATO SOARES';
+            const setor = document.getElementById('inSetor').value.toUpperCase() || 'TI';
+            
+            // Formata o telefone com a parte fixa + ramal digitado
+            const ramal = document.getElementById('inTel').value;
+            const tel = ramal ? `+55 (41) 3391-${ramal}` : empresas[empresaSelecionada].telefone;
+            
+            const email = document.getElementById('inEmail').value.toLowerCase() || 'usuario' + empresas[empresaSelecionada].email;
+
+            document.getElementById('outNome').innerText = nome;
+            document.getElementById('outSetor').innerText = setor;
+            document.getElementById('outTel').innerText = tel;
+            document.getElementById('outEmail').innerText = email;
+        }
+
+        function downloadSignature() {
+            const element = document.getElementById('signature-stage');
+            const nome = document.getElementById('inNome').value || 'assinatura';
+            const empresa = empresas[empresaSelecionada].nome;
+
+            html2canvas(element, {
+                backgroundColor: null,
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `Assinatura_${empresa}_${nome}.png`;
+                link.click();
+            });
+        }
+
+        document.getElementById('overlay').addEventListener('click', toggleMenu);
+
+        window.onload = function() {
+            empresaSelecionada = 'procopio';
+            document.getElementById('companyBadge').textContent = 'Procópio';
+            document.getElementById('signature-stage').style.backgroundImage = `url('${empresas.procopio.imagem}')`;
+            update();
+        }
+    </script>
+</body>
+</html>
